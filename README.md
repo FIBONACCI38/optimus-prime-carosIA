@@ -1,249 +1,205 @@
-# MCP Sentinel
+# 🛡️ Optimus Prime CarosIA
 
-Security agent for Claude Code and Cowork. **v2 blocks malicious tool calls in real time** — a PreToolUse hook stops credential exfiltration, known-bad domains (`giftshop.club` from the Postmark MCP backdoor is hardcoded), reverse shells, and `curl|bash` pipes before they execute. The v1 static scanner is still here: vulnerability database scanning, source integrity verification, and coherence analysis.
+### Tu antivirus para Claude Code — bloquea skills y MCP maliciosos en tiempo real
 
-**Author:** Rafael Tunón Sánchez ([@soy-rafa](https://github.com/soy-rafa))
-**License:** [MIT](./LICENSE)
-**Latest version:** 2.0 — April 2026 ([changelog](./CHANGELOG.md))
+Optimus Prime CarosIA es un agente de seguridad para Claude Code y Cowork. **Frena ataques antes de que se ejecuten:** un hook se mete delante de cada acción que hace Claude y bloquea el robo de credenciales, los dominios maliciosos conocidos (como `giftshop.club`, del backdoor de Postmark), las reverse shells y los `curl | bash`. Además incluye un escáner que revisa tus skills y MCP contra bases de datos de amenazas y detecta updates envenenados.
 
 ---
 
-> ## ⚠️ Build the habit: always vet a skill or MCP before installing it
+> ### 🙏 Créditos — esto NO lo inventé yo
 >
-> The whole reason MCP Sentinel exists is that **skills and MCPs cannot be trusted by default**. 36% of public skills contain security flaws ([Snyk ToxicSkills 2025](https://snyk.io/blog/toxicskills-malicious-ai-agent-skills-clawhub/)) and supply-chain attacks like the Postmark MCP backdoor have already exfiltrated thousands of users' emails through a single line of code added in an update.
+> Optimus Prime CarosIA es una versión **rebrandeada y adaptada al español** de **MCP Sentinel**, un proyecto creado, diseñado y desarrollado por **Rafael Tunón Sánchez** ([@soy-rafa](https://github.com/soy-rafa)).
 >
-> So before you install **anything** — including this project — make it a habit to:
+> Toda la idea, la arquitectura, el motor de detección, el análisis de coherencia y la base de amenazas son trabajo original de Rafa. Yo (Francisco Carosia — *francisco.carosIA*) lo adapté, lo traduje y lo empaqueté para que mi comunidad lo pueda instalar fácil. Se redistribuye bajo licencia **MIT**, respetando la autoría original.
 >
-> - **Open Claude and ask it to review the files first.** A quick conversation explaining what you're about to install, asking what each file does, what permissions it needs, what network endpoints it touches, and whether the behaviour matches the stated purpose. If anything looks off, stop.
-> - **Check the official source.** Compare the files you have against the canonical repo. The git commit history is your timestamped record of authorship — a fork or a stranger's zip is not.
-> - **Read the diff on every update.** Yesterday's clean version doesn't guarantee today's is safe. The Postmark attack landed on version v1.0.16 after fifteen clean releases.
->
-> MCP Sentinel automates the runtime side of this once it's installed — but **the install itself is on you**. Treat that habit as non-negotiable, every time, for every skill, every MCP, every update. That single behaviour is the biggest security upgrade you can give your AI workflow.
+> Repo original: **https://github.com/soy-rafa/claude-mcp-sentinel** — si te sirve, dejale una ⭐ a Rafa.
 
 ---
 
-## Why
-
-The AI skills ecosystem is growing fast — but so are the attacks. [Snyk's ToxicSkills study](https://snyk.io/blog/toxicskills-malicious-ai-agent-skills-clawhub/) found that **36% of skills contain security flaws**, including 76 with confirmed malicious payloads. And in September 2025 the [Postmark MCP incident](https://thehackernews.com/2025/09/first-malicious-mcp-server-found.html) became the canonical supply-chain attack in this ecosystem: fifteen clean versions followed by a single-line update that silently BCC'd every outgoing email to `phan@giftshop.club`.
-
-Static analysis of v1.0.15 would have found nothing — it was clean. That's the gap v2 closes.
-
-## What's new in v2 — Runtime blocking
-
-A **PreToolUse hook** runs before every tool call Claude makes. It inspects the call against a local IOC library plus your allowlist, then allows or blocks it:
-
-- **Sensitive paths** — reads of `~/.ssh/`, `~/.aws/`, `~/.env`, `credentials.json`, `/etc/shadow` are blocked.
-- **Known-malicious domains** — hardcoded from confirmed incidents. `giftshop.club` is in there by default and cannot be allowlisted.
-- **Exfiltration services** — pastebin.com, transfer.sh, webhook.site, requestbin, ngrok, serveo, raw-IP URLs.
-- **Dangerous commands** — `curl … | bash`, `nc -e`, `bash -i >& /dev/tcp/…`, base64 | curl chains, appends to `.bashrc`.
-- **Sensitive env vars** — `ANTHROPIC_API_KEY`, `AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`, `DATABASE_URL`, and the generic `*_API_KEY` / `*_SECRET` / `*_TOKEN` / `*_PASSWORD` patterns.
-
-**Zero LLM cost.** Pure local Python (~30–80 ms per call). Only blocked calls add a short message to the conversation.
-
-**Fail-open.** Missing IOCs, malformed stdin, hook crash — all default to `allow`. The hook will never break Claude Code.
-
-**Whitelistable.** Legitimate false positives go in `.security/sentinel-allowlist.json` (project) or `~/.claude/sentinel-allowlist.json` (global). Confirmed-malicious domains are not overrideable.
-
-## v1 — Static scanning (still included)
-
-**1. Threat intelligence scanning**
-Checks every installed skill and MCP server against 6 live databases maintained by the community: GitHub Advisory DB, vulnerablemcp.info, mcpscan.ai, Snyk, ClawHub/VirusTotal, and Reddit r/ClaudeAI.
-
-**2. Source integrity verification**
-When you're about to install a skill, Sentinel finds the official original source and compares it against your copy. If someone took a trusted skill, injected malicious code, and redistributed it — Sentinel catches the difference.
-
-**3. Coherence analysis**
-Analyzes whether everything a skill does matches its stated purpose. A token optimizer that tries to access your SSH keys? A markdown formatter that sends your credentials to an external server? Sentinel flags the mismatch and shows you exactly which actions belong and which don't.
-
-**4. Update diff detection**
-Stores a snapshot of every installed skill. If an update changes something, Sentinel diffs it and runs coherence analysis on the new code. This catches supply chain attacks — when a trusted skill pushes a poisoned update.
-
-**5. Scheduled monitoring**
-Runs automatically every morning to re-scan everything. A skill that was safe yesterday might have a new CVE reported today.
+> ## ⚠️ La regla de oro: revisá toda skill o MCP antes de instalarla
+>
+> La razón por la que esto existe es que **las skills y los MCP no son confiables por default**. El 36% de las skills públicas tienen fallas de seguridad ([Snyk ToxicSkills 2025](https://snyk.io/blog/toxicskills-malicious-ai-agent-skills-clawhub/)) y ataques como el backdoor de Postmark ya filtraron los mails de miles de usuarios con una sola línea de código metida en un update.
+>
+> Antes de instalar **cualquier cosa** — incluso esto — hacé el hábito de:
+>
+> - **Abrí Claude y pedile que revise los archivos primero.** Una charla rápida: qué hace cada archivo, qué permisos pide, a qué servidores se conecta, y si el comportamiento coincide con lo que dice hacer. Si algo no cierra, frená.
+> - **Chequeá la fuente oficial.** Compará los archivos contra el repo canónico. El historial de commits es tu registro de autoría — un zip de un desconocido no lo es.
+> - **Leé el diff en cada update.** Que ayer estuviera limpio no garantiza que hoy lo esté. El ataque de Postmark llegó en la v1.0.16, después de quince versiones limpias.
+>
+> Optimus automatiza la parte de runtime una vez instalado — pero **la instalación es responsabilidad tuya**. Hacé ese hábito innegociable, siempre, para cada skill, cada MCP, cada update.
 
 ---
 
-## Installation — step by step
+## Por qué
 
-### Requirements
+El ecosistema de skills de IA crece rápido — y los ataques también. El estudio [ToxicSkills de Snyk](https://snyk.io/blog/toxicskills-malicious-ai-agent-skills-clawhub/) encontró que **el 36% de las skills tienen fallas de seguridad**, incluidas 76 con payloads maliciosos confirmados. Y en septiembre 2025 el [incidente de Postmark MCP](https://thehackernews.com/2025/09/first-malicious-mcp-server-found.html) se volvió el ataque de cadena de suministro canónico del ecosistema: quince versiones limpias seguidas de un update de una línea que mandaba en copia oculta cada mail saliente a `phan@giftshop.club`.
 
-- Claude Code CLI **or** Claude desktop app with Cowork mode
-- Python 3.8+ (for the v2 runtime hook)
-- `jq` (for the install script — usually preinstalled on macOS, `apt install jq` on Linux)
-- Git (only if you want to clone the repo instead of downloading the zip)
+Un escaneo estático de la v1.0.15 no habría encontrado nada — estaba limpia. Ese es el agujero que tapa la protección en tiempo real.
 
-Verify with:
+## Capa 1 — Bloqueo en tiempo real (lo principal)
+
+Un **hook PreToolUse** corre antes de cada acción de Claude. Inspecciona la acción contra una librería local de indicadores de compromiso (IOCs) más tu allowlist, y decide permitir o bloquear:
+
+- **Rutas sensibles** — lecturas de `~/.ssh/`, `~/.aws/`, `~/.env`, `credentials.json`, `/etc/shadow` se bloquean.
+- **Dominios maliciosos conocidos** — hardcodeados de incidentes confirmados. `giftshop.club` viene por default y no se puede poner en la allowlist.
+- **Servicios de exfiltración** — pastebin.com, transfer.sh, webhook.site, requestbin, ngrok, serveo, URLs con IP cruda.
+- **Comandos peligrosos** — `curl … | bash`, `nc -e`, `bash -i >& /dev/tcp/…`, cadenas base64 | curl, agregados a `.bashrc`.
+- **Variables de entorno sensibles** — `ANTHROPIC_API_KEY`, `AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`, `DATABASE_URL`, y los patrones genéricos `*_API_KEY` / `*_SECRET` / `*_TOKEN` / `*_PASSWORD`.
+
+**Cero costo de IA.** Es Python local puro (~30–80 ms por acción). Solo las acciones bloqueadas agregan un mensaje corto a la conversación.
+
+**Fail-open.** Si falta el archivo de IOCs, el stdin viene mal, o el hook crashea — todo cae por default en `permitir`. El hook nunca rompe Claude Code.
+
+**Allowlist.** Los falsos positivos legítimos van en `.security/optimus-allowlist.json` (proyecto) o `~/.claude/optimus-allowlist.json` (global). Los dominios maliciosos confirmados no se pueden sobreescribir.
+
+## Capa 2 — Escaneo estático (incluido)
+
+1. **Inteligencia de amenazas** — chequea cada skill y MCP instalado contra 6 bases vivas mantenidas por la comunidad: GitHub Advisory DB, vulnerablemcp.info, mcpscan.ai, Snyk, ClawHub/VirusTotal y Reddit r/ClaudeAI.
+2. **Verificación de integridad de la fuente** — antes de instalar una skill, busca el original oficial y lo compara con tu copia. Si alguien agarró una skill confiable, le metió código malicioso y la redistribuyó, Optimus caza la diferencia.
+3. **Análisis de coherencia** — analiza si todo lo que hace una skill coincide con lo que dice hacer. ¿Un optimizador de tokens que quiere leer tus claves SSH? ¿Un formateador de markdown que manda tus credenciales afuera? Optimus marca el desajuste.
+4. **Detección de diffs en updates** — guarda un snapshot de cada skill. Si un update cambia algo, lo diffea y analiza la coherencia del código nuevo. Así caza los ataques de cadena de suministro.
+5. **Monitoreo programado** — re-escanea todo cada mañana. Una skill segura ayer puede tener un CVE nuevo hoy.
+
+---
+
+## Instalación — paso a paso
+
+### Requisitos
+
+- Claude Code CLI **o** la app de escritorio de Claude con modo Cowork
+- Python 3.8+ (para el hook de tiempo real)
+- `jq` (para el script de instalación — suele venir preinstalado en macOS, `apt install jq` en Linux)
+- Git (solo si querés clonar el repo en vez de bajar el zip)
+
+Verificá con:
 
 ```bash
 python3 --version
 jq --version
 ```
 
-### Method 1 — Install from the `.skill` file (recommended)
+### Método 1 — Bajar el ZIP (el más fácil)
 
-This is the easiest path and works for both Claude Code and Cowork.
+1. Tocá el botón verde **Code** arriba en este repo → **Download ZIP**.
+2. Descomprimilo.
+3. Copiá la carpeta descomprimida a:
+   - `~/.claude/skills/optimus-prime-carosia/` — para usarlo en todos tus proyectos
+   - `.claude/skills/optimus-prime-carosia/` — solo para el proyecto actual
+4. Seguí con "Activar el hook de tiempo real" más abajo.
 
-1. Go to the [Releases page](../../releases) of this repo.
-2. Download `mcp-sentinel.skill` from the latest release.
-3. Double-click the `.skill` file. Your Claude app will prompt you to install it.
-4. Confirm in the install dialog.
-5. Enable the runtime hook (see "Enable the v2 runtime hook" below).
-
-### Method 2 — Clone the repo (for developers / contributors)
+### Método 2 — Clonar el repo
 
 ```bash
-# 1. Clone
-git clone https://github.com/soy-rafa/claude-mcp-sentinel.git
-cd claude-mcp-sentinel
+# 1. Clonar
+git clone https://github.com/carosiafrancisco-svg/optimus-prime-carosIA.git
+cd optimus-prime-carosIA
 
-# 2. Install as a global skill
-mkdir -p ~/.claude/skills/mcp-sentinel
-cp -R . ~/.claude/skills/mcp-sentinel/
+# 2. Instalar como skill global
+mkdir -p ~/.claude/skills/optimus-prime-carosia
+cp -R . ~/.claude/skills/optimus-prime-carosia/
 
-# 3. Or install only for the current project
-mkdir -p .claude/skills/mcp-sentinel
-cp -R . .claude/skills/mcp-sentinel/
+# 3. O instalar solo para el proyecto actual
+mkdir -p .claude/skills/optimus-prime-carosia
+cp -R . .claude/skills/optimus-prime-carosia/
 ```
 
-### Method 3 — Manual download (no git, no .skill file)
+### Activar el hook de tiempo real
 
-1. Click the green **Code** button at the top of this repo → **Download ZIP**.
-2. Unzip it.
-3. Copy the unzipped folder into:
-   - `~/.claude/skills/mcp-sentinel/` — for global use across all projects
-   - `.claude/skills/mcp-sentinel/` — for the current project only
-4. Continue with the runtime hook setup below.
+El hook es lo que te da el bloqueo en vivo. **Sin él, solo tenés el escáner estático.**
 
-### Enable the v2 runtime hook
-
-The hook is what gives you real-time blocking. **Without it, you only get the v1 static scanner.**
-
-From inside the `mcp-sentinel` folder:
+Desde adentro de la carpeta `optimus-prime-carosia`:
 
 ```bash
-# Globally (recommended) — runs on every project
+# Global (recomendado) — corre en todos los proyectos
 bash hooks/install_hooks.sh --user
 
-# Or only for this project
+# O solo para este proyecto
 bash hooks/install_hooks.sh --project
 ```
 
-The script:
-- Backs up your current `~/.claude/settings.json` (or `.claude/settings.json` for `--project`) to `*.bak.<timestamp>`
-- Adds the `PreToolUse` hook entry pointing to `sentinel_preflight.py`
-- Verifies Python and `jq` are available
-- Prints a confirmation with the installed path
+El script:
+- Hace backup de tu `~/.claude/settings.json` actual a `*.optimus.bak.<timestamp>`
+- Agrega el hook `PreToolUse` apuntando a `optimus_preflight.py`
+- Verifica que estén Python y `jq`
+- Imprime una confirmación con la ruta instalada
 
-### Verify the install
+### Verificar la instalación
 
 ```bash
-# 1. Confirm the hook is registered
+# 1. Confirmar que el hook quedó registrado
 cat ~/.claude/settings.json | jq '.hooks.PreToolUse'
 
-# 2. Run the regression suite
-cd ~/.claude/skills/mcp-sentinel  # or wherever you installed it
-python3 -m pytest tests/test_hook.py -v
+# 2. Correr los tests
+cd ~/.claude/skills/optimus-prime-carosia
+python3 tests/test_hook.py
 ```
 
-You should see **20 passed**. If anything fails, the install didn't go through cleanly — open an issue with the test output.
+Tenés que ver **20 passed**. Si algo falla, la instalación no quedó limpia.
 
-### Uninstall
+### Desinstalar
 
 ```bash
-bash hooks/uninstall_hooks.sh --user      # or --project
-rm -rf ~/.claude/skills/mcp-sentinel      # or .claude/skills/mcp-sentinel
+bash hooks/uninstall_hooks.sh --user      # o --project
+rm -rf ~/.claude/skills/optimus-prime-carosia
 ```
 
-The uninstall script restores your previous `settings.json` from the backup it made on install.
+El script de desinstalación restaura tu `settings.json` anterior desde el backup.
 
 ---
 
-## Usage
+## Cómo se usa
 
-Just talk to Claude:
+Simplemente hablale a Claude:
 
-- *"Scan my project for security issues"*
-- *"Is this MCP server safe to install?"*
-- *"Check if this skill has been tampered with"*
-- *"Run a security audit"*
+- *"Escaneá mi proyecto por temas de seguridad"*
+- *"¿Es seguro instalar este MCP?"*
+- *"Fijate si esta skill fue manipulada"*
+- *"Hacé una auditoría de seguridad"*
 
-MCP Sentinel triggers automatically when it detects you're about to install something or when you mention security concerns.
+Optimus se activa solo cuando detecta que estás por instalar algo o cuando mencionás temas de seguridad.
 
-## How it works
+## Cómo funciona
 
-MCP Sentinel is a Claude skill — a `.md` file with structured instructions that tells Claude how to act as a security agent. The **v1 scanner** uses Claude's built-in tools (WebSearch, Read, Write, Bash, Glob, Grep) to scan files, search databases, and generate reports. No external dependencies, no API keys, no infrastructure.
+Optimus Prime CarosIA es una skill de Claude — un archivo `.md` con instrucciones que le dicen a Claude cómo actuar de agente de seguridad. El **escáner estático** usa las herramientas nativas de Claude (WebSearch, Read, Write, Bash, Glob, Grep) para escanear archivos, buscar en bases de datos y generar reportes. Sin dependencias externas, sin API keys, sin infraestructura.
 
-The **v2 runtime hook** is a local Python script (`hooks/sentinel_preflight.py`) that Claude Code executes before every tool call. It reads the call on stdin, pattern-matches against the IOC library (`references/iocs.json`) plus your allowlist, and returns an allow/deny decision on stdout. No LLM involvement, no network calls.
+El **hook de tiempo real** es un script de Python local (`hooks/optimus_preflight.py`) que Claude Code ejecuta antes de cada acción. Lee la acción por stdin, la compara contra la librería de IOCs (`references/iocs.json`) más tu allowlist, y devuelve una decisión permitir/bloquear por stdout. Sin IA, sin llamadas de red.
 
-All analysis happens locally + public web searches (for v1 scanning). Your code and credentials never leave your machine.
+Todo el análisis pasa local + búsquedas web públicas (para el escaneo estático). Tu código y tus credenciales nunca salen de tu máquina.
 
-## Threat database
+## Benchmarks (del proyecto original)
 
-Sentinel maintains a local JSON database at `.security/mcp-sentinel-threats.json` that grows with each scan. It stores:
+### Hook de tiempo real (20 casos de regresión en `tests/test_hook.py`)
 
-- Inventory of installed skills/MCPs with content snapshots
-- Known threats with CVE IDs and severity scores
-- Community alerts from Reddit and Discord
-- Change history for update diff detection
-- Structured threat reports compatible with future community sharing
-
-## Benchmarks
-
-### v1 static scan (5 scenarios: full audit, pre-install check, suspicious skill investigation, source integrity verification, coherence analysis)
-
-| | With MCP Sentinel | Without (baseline) |
+| Categoría | Casos | Resultado |
 |---|---|---|
-| Detection rate | **100%** | 43–67% |
-| Source verification | Yes | No |
-| Coherence map | Yes | No |
-| Threat database | Yes | No |
-
-### v2 runtime hook (20 regression cases in `tests/test_hook.py`)
-
-| Category | Cases | Result |
-|---|---|---|
-| Benign tool calls correctly allowed | 5 | ✅ 5/5 |
-| Credential-harvesting attacks blocked | 4 | ✅ 4/4 |
-| Network exfil blocked (incl. Postmark `giftshop.club` IOC) | 4 | ✅ 4/4 |
-| Dangerous commands blocked (`curl\|bash`, reverse shell, `.bashrc` hijack) | 4 | ✅ 4/4 |
-| Fail-open on malformed / empty input | 3 | ✅ 3/3 |
+| Acciones benignas correctamente permitidas | 5 | ✅ 5/5 |
+| Ataques de robo de credenciales bloqueados | 4 | ✅ 4/4 |
+| Exfiltración de red bloqueada (incl. el IOC `giftshop.club` de Postmark) | 4 | ✅ 4/4 |
+| Comandos peligrosos bloqueados (`curl\|bash`, reverse shell, hijack de `.bashrc`) | 4 | ✅ 4/4 |
+| Fail-open ante input vacío / malformado | 3 | ✅ 3/3 |
 | **Total** | **20** | **✅ 20/20** |
 
-Overhead: ~30–80 ms per tool call. Zero LLM tokens in normal operation.
+Overhead: ~30–80 ms por acción. Cero tokens de IA en operación normal.
 
-## Contributing
+---
 
-Found a bug? Have an idea? Open an issue or PR. This is a community project.
+## Legal y atribución
 
-## Legal
+Este proyecto está licenciado bajo la [Licencia MIT](./LICENSE).
 
-### License
+- **Autor original:** Rafael Tunón Sánchez ([@soy-rafa](https://github.com/soy-rafa)) — proyecto **MCP Sentinel**. La idea, la arquitectura, la metodología de análisis de coherencia, la detección de diffs en updates y el esquema de la base de amenazas son trabajo original suyo.
+- **Modificaciones / rebrand / traducción:** Francisco Carosia (*francisco.carosIA*).
 
-This project is licensed under the [MIT License](./LICENSE). Copyright (c) 2026 Rafael Tunón Sánchez.
-
-You are free to use, copy, modify, merge, publish, distribute, sublicense, and sell copies of this software, provided that the original copyright notice and this permission notice are included in all copies or substantial portions of the software.
-
-### Attribution
-
-If you redistribute this project, in whole or in part, or create derivative works based on it, you must give appropriate credit to the original author. This includes:
-
-- Keeping the copyright notice in the LICENSE file intact
-- Mentioning the original project and author in any derivative work's documentation
-
-### Original work
-
-MCP Sentinel was conceived, designed, and developed by **Rafael Tunón Sánchez** in April 2026. The concept, architecture, skill instructions, coherence analysis methodology, update diff detection system, and threat database schema are original work by the author.
-
-The full commit history of this repository serves as a public, timestamped record of authorship.
+Si redistribuís esto, en parte o entero, tenés que mantener el aviso de copyright del archivo LICENSE intacto y mencionar al autor original.
 
 ### Disclaimer
 
-This software is provided "as is", without warranty of any kind. MCP Sentinel is a security tool that helps detect potential threats, but it does not guarantee the detection of all vulnerabilities or malicious code. Users are responsible for their own security decisions. The author is not liable for any damages arising from the use of this software.
+Este software se provee "tal cual", sin garantía de ningún tipo. Optimus Prime CarosIA ayuda a detectar amenazas potenciales, pero no garantiza la detección de todas las vulnerabilidades o código malicioso. Las decisiones de seguridad son responsabilidad del usuario.
 
-### Trademarks
+### Marcas
 
-"MCP Sentinel" is the project name chosen by the author. GitHub, Claude, Anthropic, Snyk, and other product names mentioned in this repository are trademarks of their respective owners.
+"MCP Sentinel" es el nombre elegido por su autor original. GitHub, Claude, Anthropic, Snyk y otros nombres de productos mencionados son marcas de sus respectivos dueños.
 
 ---
 
-Built with care by [@soy-rafa](https://github.com/soy-rafa)
+Adaptado con cariño por **francisco.carosIA** · Motor original por [@soy-rafa](https://github.com/soy-rafa)

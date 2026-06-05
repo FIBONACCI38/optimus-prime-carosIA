@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "description": "MCP Sentinel Indicators of Compromise (IOCs). Patterns, paths, and domains known to be associated with skill/MCP attacks. Maintained locally so runtime protection works offline. Contributions welcome via PR.",
+  "description": "Optimus Prime CarosIA Indicators of Compromise (IOCs). Patterns, paths, and domains known to be associated with skill/MCP attacks. Maintained locally so runtime protection works offline. Contributions welcome via PR.",
   "last_updated": "2026-04-17",
 
   "sensitive_paths": {
@@ -109,7 +109,7 @@
   },
 
   "allowlist": {
-    "description": "Paths and domains explicitly allowed — reduces false positives. Users can extend this locally in their .security/sentinel-allowlist.json",
+    "description": "Paths and domains explicitly allowed — reduces false positives. Users can extend this locally in their .security/optimus-allowlist.json",
     "paths": [
       "/tmp/",
       "/var/tmp/"

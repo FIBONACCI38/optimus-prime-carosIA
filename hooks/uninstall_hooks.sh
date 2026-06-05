@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# MCP Sentinel — uninstall runtime protection hook.
+# Optimus Prime CarosIA — uninstall runtime protection hook.
 #
-# Removes sentinel_preflight.py from Claude Code's PreToolUse hooks.
+# Removes optimus_preflight.py from Claude Code's PreToolUse hooks.
 # Leaves other hooks untouched.
 
 set -euo pipefail
@@ -34,7 +34,7 @@ TMP="$(mktemp)"
 jq '
   if .hooks.PreToolUse then
     .hooks.PreToolUse |= map(
-      .hooks |= map(select((.command // "") | test("sentinel_preflight") | not))
+      .hooks |= map(select((.command // "") | test("optimus_preflight") | not))
     )
     | .hooks.PreToolUse |= map(select((.hooks // []) | length > 0))
   else
@@ -43,4 +43,4 @@ jq '
 ' "$SETTINGS_FILE" > "$TMP"
 
 mv "$TMP" "$SETTINGS_FILE"
-echo "✅ MCP Sentinel runtime protection removed from $SETTINGS_FILE"
+echo "✅ Optimus Prime CarosIA runtime protection removed from $SETTINGS_FILE"

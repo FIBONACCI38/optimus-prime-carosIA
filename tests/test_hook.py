@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test suite for MCP Sentinel's PreToolUse hook.
+Test suite for Optimus Prime CarosIA's PreToolUse hook.
 
 Runs the hook as a subprocess, feeds crafted tool call JSONs on stdin, and
 verifies the decision returned on stdout. Covers:
@@ -19,7 +19,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-HOOK = Path(__file__).parent.parent / "hooks" / "sentinel_preflight.py"
+HOOK = Path(__file__).parent.parent / "hooks" / "optimus_preflight.py"
 
 PASS = "✅"
 FAIL = "❌"

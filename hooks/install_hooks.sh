@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# MCP Sentinel — install runtime protection hook.
+# Optimus Prime CarosIA — install runtime protection hook.
 #
-# Registers sentinel_preflight.py as a PreToolUse hook in Claude Code.
+# Registers optimus_preflight.py as a PreToolUse hook in Claude Code.
 # Idempotent (running twice is safe). Reversible via uninstall_hooks.sh.
 #
 # Scope:
@@ -13,7 +13,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-HOOK_PATH="$SCRIPT_DIR/sentinel_preflight.py"
+HOOK_PATH="$SCRIPT_DIR/optimus_preflight.py"
 SCOPE="user"
 
 for arg in "$@"; do
@@ -62,19 +62,19 @@ if ! jq empty "$SETTINGS_FILE" 2>/dev/null; then
   exit 1
 fi
 
-BACKUP="$SETTINGS_FILE.sentinel.bak.$(date +%s)"
+BACKUP="$SETTINGS_FILE.optimus.bak.$(date +%s)"
 cp "$SETTINGS_FILE" "$BACKUP"
 echo "📦 Backup saved to $BACKUP"
 
 HOOK_COMMAND="python3 \"$HOOK_PATH\""
 
-# Add or replace the PreToolUse hook. Any existing non-Sentinel hooks are preserved.
+# Add or replace the PreToolUse hook. Any existing non-Optimus hooks are preserved.
 TMP="$(mktemp)"
 jq --arg cmd "$HOOK_COMMAND" '
   .hooks //= {}
   | .hooks.PreToolUse //= []
   | .hooks.PreToolUse |= (
-      map(select(.hooks[]?.command != $cmd))   # remove any stale Sentinel entry
+      map(select(.hooks[]?.command != $cmd))   # remove any stale Optimus entry
       + [{
           matcher: "",
           hooks: [{type: "command", command: $cmd}]
@@ -83,8 +83,8 @@ jq --arg cmd "$HOOK_COMMAND" '
 ' "$SETTINGS_FILE" > "$TMP"
 
 mv "$TMP" "$SETTINGS_FILE"
-echo "✅ MCP Sentinel runtime protection installed in $SETTINGS_FILE"
+echo "✅ Optimus Prime CarosIA runtime protection installed in $SETTINGS_FILE"
 echo ""
-echo "Next time Claude Code runs a tool call, Sentinel will check it first."
+echo "Next time Claude Code runs a tool call, Optimus will check it first."
 echo "To verify: ask Claude to run a harmless command. You should see no friction."
 echo "To uninstall: run uninstall_hooks.sh"

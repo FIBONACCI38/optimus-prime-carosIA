@@ -1,35 +1,35 @@
-# MCP Sentinel — Runtime Protection Hook
+# Optimus Prime CarosIA — Hook de protección en tiempo real
 
-This folder contains the runtime protection layer that ships with Sentinel v2.
+Esta carpeta contiene la capa de protección que corre en vivo.
 
-## What it does
+## Qué hace
 
-Registers a **PreToolUse hook** with Claude Code. Before every tool call a skill or MCP tries to make, the hook inspects the call against the bundled `references/iocs.json` library (sensitive paths, known-malicious domains, dangerous command patterns, env-var exfiltration). Suspicious calls are blocked or flagged in real time — before execution.
+Registra un **hook PreToolUse** en Claude Code. Antes de cada acción que una skill o un MCP intenta hacer, el hook la inspecciona contra la librería `references/iocs.json` (rutas sensibles, dominios maliciosos conocidos, comandos peligrosos, exfiltración de env vars). Las acciones sospechosas se bloquean o marcan en tiempo real — antes de ejecutarse.
 
-## Cost
+## Costo
 
-Zero LLM tokens in normal operation. The hook is a local Python script that runs in ~30–80ms per call. A blocked or warned call adds a short message to the conversation (negligible tokens, only when triggered).
+Cero tokens de IA en operación normal. Es un script de Python local que corre en ~30–80 ms por acción. Una acción bloqueada o marcada agrega un mensaje corto a la conversación (tokens despreciables, solo cuando se dispara).
 
-## Install
+## Instalar
 
-From the repo root (or wherever you unpacked the skill):
+Desde la raíz del repo (o donde hayas descomprimido la skill):
 
 ```bash
-bash hooks/install_hooks.sh --user     # globally for your user
-bash hooks/install_hooks.sh --project  # for the current project only
+bash hooks/install_hooks.sh --user     # global para tu usuario
+bash hooks/install_hooks.sh --project  # solo para el proyecto actual
 ```
 
-## Uninstall
+## Desinstalar
 
 ```bash
 bash hooks/uninstall_hooks.sh --user
-# or
+# o
 bash hooks/uninstall_hooks.sh --project
 ```
 
 ## Allowlist
 
-False positives can be whitelisted in `.security/sentinel-allowlist.json`:
+Los falsos positivos se pueden whitelistear en `.security/optimus-allowlist.json`:
 
 ```json
 {
@@ -39,8 +39,8 @@ False positives can be whitelisted in `.security/sentinel-allowlist.json`:
 }
 ```
 
-## Files
+## Archivos
 
-- `sentinel_preflight.py` — the hook itself. Reads tool call from stdin, returns decision JSON.
-- `install_hooks.sh` — registers the hook in Claude Code settings.
-- `uninstall_hooks.sh` — removes the hook.
+- `optimus_preflight.py` — el hook. Lee la acción por stdin, devuelve la decisión en JSON.
+- `install_hooks.sh` — registra el hook en la config de Claude Code.
+- `uninstall_hooks.sh` — saca el hook.

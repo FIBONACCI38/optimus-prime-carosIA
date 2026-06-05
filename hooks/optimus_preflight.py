@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-MCP Sentinel — PreToolUse hook.
+Optimus Prime CarosIA — PreToolUse hook.
 
 Runs before every tool call made by Claude. Reads the tool call JSON from stdin,
 checks it against bundled IOCs (paths, domains, command patterns, env vars) and
@@ -23,7 +23,7 @@ Usage (registered via install_hooks.sh, or manually):
     "PreToolUse": [{
       "matcher": "",
       "hooks": [{"type": "command",
-                 "command": "python3 ~/.claude/skills/mcp-sentinel/hooks/sentinel_preflight.py"}]
+                 "command": "python3 ~/.claude/skills/optimus-prime-carosia/hooks/optimus_preflight.py"}]
     }]
   }
 """
@@ -41,8 +41,8 @@ def load_iocs():
     # Try relative first, then absolute via common install locations.
     candidates = [
         Path(__file__).parent.parent / "references" / "iocs.json",
-        Path.home() / ".claude" / "skills" / "mcp-sentinel" / "references" / "iocs.json",
-        Path.cwd() / ".claude" / "skills" / "mcp-sentinel" / "references" / "iocs.json",
+        Path.home() / ".claude" / "skills" / "optimus-prime-carosia" / "references" / "iocs.json",
+        Path.cwd() / ".claude" / "skills" / "optimus-prime-carosia" / "references" / "iocs.json",
     ]
     for path in candidates:
         if path.exists():
@@ -56,8 +56,8 @@ def load_iocs():
 def load_user_allowlist():
     """Load user-specific allowlist if it exists. Takes precedence over IOC allowlist."""
     for candidate in (
-        Path.cwd() / ".security" / "sentinel-allowlist.json",
-        Path.home() / ".claude" / "sentinel-allowlist.json",
+        Path.cwd() / ".security" / "optimus-allowlist.json",
+        Path.home() / ".claude" / "optimus-allowlist.json",
     ):
         if candidate.exists():
             try:
@@ -284,10 +284,10 @@ def main():
     tool_name = payload.get("tool_name") or payload.get("tool", "<unknown>")
     if decision == "deny":
         message = (
-            f"🛡️ MCP Sentinel blocked a {tool_name} call.\n"
+            f"🛡️ Optimus Prime CarosIA blocked a {tool_name} call.\n"
             f"Reason: {reason}\n"
             f"If this is a false positive, add an exception to "
-            f".security/sentinel-allowlist.json and retry."
+            f".security/optimus-allowlist.json and retry."
         )
         print(json.dumps({
             "decision": "block",
@@ -300,7 +300,7 @@ def main():
         }))
     else:  # warn
         message = (
-            f"⚠️ MCP Sentinel: suspicious {tool_name} call allowed with warning.\n"
+            f"⚠️ Optimus Prime CarosIA: suspicious {tool_name} call allowed with warning.\n"
             f"Reason: {reason}"
         )
         print(json.dumps({

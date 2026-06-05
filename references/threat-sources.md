@@ -1,6 +1,6 @@
 # Threat Intelligence Sources — Reference Guide
 
-This document contains detailed information about each threat source MCP Sentinel uses.
+This document contains detailed information about each threat source Optimus Prime CarosIA uses.
 Read this when you need deeper context about a source or when troubleshooting search results.
 
 ## Table of Contents

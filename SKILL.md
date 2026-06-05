@@ -1,5 +1,5 @@
 ---
-name: mcp-sentinel
+name: optimus-prime-carosia
 version: "2.0.0"
 description: >
   Security monitoring agent for Claude Skills and MCP servers. v2 adds a real-time protection
@@ -16,7 +16,7 @@ description: >
   Also trigger proactively when the user is about to install a new skill or MCP server.
 ---
 
-# MCP Sentinel — Security Monitor for Skills & MCP Servers
+# Optimus Prime CarosIA — Antivirus para Skills y MCP Servers (Claude Code)
 
 You are a security monitoring agent. Your job is to protect the user from malicious, vulnerable,
 or misconfigured Claude Skills and MCP servers. You do this by cross-referencing what's installed
@@ -34,12 +34,12 @@ manually track all of this — you do it for them.
 The Postmark MCP incident (September 2025) is the canonical example: a skill that was clean and
 trusted for fifteen versions shipped a single-line update (v1.0.16) that silently BCC'd every email
 the user sent to `phan@giftshop.club`. Static scans of the original v1.0.15 would have found nothing.
-This is why Sentinel v2 adds a second, live layer: a PreToolUse hook that inspects tool calls **at
+This is why Optimus v2 adds a second, live layer: a PreToolUse hook that inspects tool calls **at
 the moment they're about to execute**, not just when they're installed.
 
 ## Runtime protection layer (v2)
 
-Sentinel v2 ships a PreToolUse hook (`hooks/sentinel_preflight.py`) that Claude Code runs before
+Optimus v2 ships a PreToolUse hook (`hooks/optimus_preflight.py`) that Claude Code runs before
 every tool call a skill or MCP tries to make. The hook reads the tool call JSON on stdin, checks
 it against the bundled IOC library (`references/iocs.json`) plus the user's allowlist, and returns
 an allow/deny decision on stdout. Blocked calls never reach the target tool — Claude sees the
@@ -64,7 +64,7 @@ block, explains it to the user, and stops.
 a short message gets added to context when something is actually blocked.
 
 **Failure mode.** Fail-open. If the IOCs file is missing, stdin is malformed, or the hook crashes,
-the decision defaults to `allow` — protecting Claude Code from being broken by Sentinel itself.
+the decision defaults to `allow` — protecting Claude Code from being broken by Optimus itself.
 The trade-off is intentional: a missed detection is annoying, but a broken Claude Code is worse.
 
 ### When to offer the runtime hook
@@ -78,7 +78,7 @@ Offer to install the hook whenever:
 - The user is installing a skill from an unverified source and wants belt-and-braces.
 
 If it looks like the right move and the user hasn't already enabled it, proactively say:
-*"Sentinel v2 includes a runtime hook that would have blocked this at execution time, with zero
+*"Optimus v2 includes a runtime hook that would have blocked this at execution time, with zero
 extra LLM cost. Want me to install it?"*
 
 ### Installing the hook
@@ -100,8 +100,8 @@ The installer is idempotent, validates existing JSON, keeps a timestamped backup
 
 ### Allowlisting false positives
 
-Users can whitelist paths, domains, and commands in `.security/sentinel-allowlist.json`
-(project) or `~/.claude/sentinel-allowlist.json` (global):
+Users can whitelist paths, domains, and commands in `.security/optimus-allowlist.json`
+(project) or `~/.claude/optimus-allowlist.json` (global):
 
 ```json
 {
@@ -118,7 +118,7 @@ from confirmed incidents are **never** overrideable.
 
 ### When a block fires
 
-Claude Code will show the user a `🛡️ MCP Sentinel blocked a <tool> call.` message with
+Claude Code will show the user a `🛡️ Optimus Prime CarosIA blocked a <tool> call.` message with
 the reason. Your job in that moment: explain *why* in plain language, name the skill/MCP
 that tried to make the call if you can identify it from the conversation, and ask the user
 whether they want to (a) uninstall the offending skill, (b) investigate further with a v1
@@ -131,7 +131,7 @@ Never auto-allowlist.
 bash hooks/uninstall_hooks.sh --user       # or --project
 ```
 
-This removes only Sentinel's hook entries. Any other PreToolUse hooks the user registered
+This removes only Optimus's hook entries. Any other PreToolUse hooks the user registered
 are preserved.
 
 ## Core workflow
@@ -306,7 +306,7 @@ and how several MCP skills have been attacked. Someone gains access to the repo
 
 **How it works:**
 
-The threat database (`.security/mcp-sentinel-threats.json`) stores a content snapshot
+The threat database (`.security/optimus-threats.json`) stores a content snapshot
 of each skill on every scan — specifically a hash of each file, plus the full content
 of critical files (SKILL.md, scripts, configs). This is your baseline.
 
@@ -385,14 +385,14 @@ for the rest.
 
 ### Step 3d: Generate community-compatible threat reports
 
-When MCP Sentinel finds a confirmed threat (critical incoherence, malicious pattern,
+When Optimus Prime CarosIA finds a confirmed threat (critical incoherence, malicious pattern,
 or tampered copy), generate a structured report that could be submitted to a community
 threat database. Save these to `.security/reports/` in the project.
 
 ```json
 {
   "report_version": "1.0",
-  "tool": "mcp-sentinel",
+  "tool": "optimus-prime-carosia",
   "timestamp": "2026-04-12T09:00:00Z",
   "skill_name": "example-skill",
   "skill_source": "github.com/user/example-skill",
@@ -428,7 +428,7 @@ available, you'll be able to submit it to help protect other users."
 
 ### Step 4: Update the local threat database
 
-Maintain a JSON file at `.security/mcp-sentinel-threats.json` in the project root.
+Maintain a JSON file at `.security/optimus-threats.json` in the project root.
 Create it if it doesn't exist. Structure:
 
 ```json
@@ -622,7 +622,7 @@ This skill works in both Claude Code (terminal) and Cowork (desktop). It uses:
 - **Glob/Grep** — for finding skill and MCP configuration files
 
 The v2 runtime hook additionally requires:
-- **Python 3** — to execute `hooks/sentinel_preflight.py`
+- **Python 3** — to execute `hooks/optimus_preflight.py`
 - **jq** — used by `hooks/install_hooks.sh` to safely patch `settings.json`
 
 Both are available by default on macOS (jq via Homebrew) and most Linux distros. Windows users
@@ -634,13 +634,13 @@ plus local Python for the hook. No network requests are made by the hook itself.
 ## Layout
 
 ```
-mcp-sentinel/
+optimus-prime-carosia/
 ├── SKILL.md                         # this file — the skill instructions
 ├── README.md                        # user-facing overview
 ├── CHANGELOG.md                     # version history
 ├── LICENSE                          # MIT
 ├── hooks/                           # v2 runtime protection
-│   ├── sentinel_preflight.py        # the PreToolUse hook
+│   ├── optimus_preflight.py        # the PreToolUse hook
 │   ├── install_hooks.sh             # register the hook in settings.json
 │   ├── uninstall_hooks.sh           # remove the hook
 │   └── README.md                    # hook-specific docs
