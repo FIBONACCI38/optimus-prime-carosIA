@@ -6,13 +6,7 @@ Optimus Prime CarosIA es un agente de seguridad para Claude Code y Cowork. **Fre
 
 ---
 
-> ### 🙏 Créditos — esto NO lo inventé yo
->
-> Optimus Prime CarosIA es una versión **rebrandeada y adaptada al español** de **MCP Sentinel**, un proyecto creado, diseñado y desarrollado por **Rafael Tunón Sánchez** ([@soy-rafa](https://github.com/soy-rafa)).
->
-> Toda la idea, la arquitectura, el motor de detección, el análisis de coherencia y la base de amenazas son trabajo original de Rafa. Yo (Francisco Carosia — *francisco.carosIA*) lo adapté, lo traduje y lo empaqueté para que mi comunidad lo pueda instalar fácil. Se redistribuye bajo licencia **MIT**, respetando la autoría original.
->
-> Repo original: **https://github.com/soy-rafa/claude-mcp-sentinel** — si te sirve, dejale una ⭐ a Rafa.
+
 
 ---
 
@@ -187,8 +181,7 @@ Overhead: ~30–80 ms por acción. Cero tokens de IA en operación normal.
 
 Este proyecto está licenciado bajo la [Licencia MIT](./LICENSE).
 
-- **Autor original:** Rafael Tunón Sánchez ([@soy-rafa](https://github.com/soy-rafa)) — proyecto **MCP Sentinel**. La idea, la arquitectura, la metodología de análisis de coherencia, la detección de diffs en updates y el esquema de la base de amenazas son trabajo original suyo.
-- **Modificaciones / rebrand / traducción:** Francisco Carosia (*francisco.carosIA*).
+
 
 Si redistribuís esto, en parte o entero, tenés que mantener el aviso de copyright del archivo LICENSE intacto y mencionar al autor original.
 
