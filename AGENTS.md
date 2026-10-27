@@ -5,7 +5,8 @@ Este repositorio contiene controles de seguridad para agentes de IA. Sigue estas
 ## Contexto obligatorio
 - Lee README.md, CHANGELOG.md, CLAUDE.md y docs/security/agent-security-policy.md.
 - Detecta el lenguaje, la estructura, las pruebas y los comandos disponibles. No presupongas una pila tecnológica ni inventes resultados.
-- Consulta documentación oficial actualizada para opciones de Claude Code, Codex, MCP o Google Workspace que no puedas verificar localmente.
+- Para preguntas sobre OpenAI API, Codex, ChatGPT o plugins, usa primero el MCP oficial de documentación OpenAI `openaiDeveloperDocs` configurado en este repositorio; cita las páginas oficiales consultadas. Si no está conectado o no responde, declara la limitación y consulta la documentación oficial directamente.
+- Consulta documentación oficial actualizada para opciones de Claude Code, MCP o Google Workspace que no puedas verificar localmente.
 
 ## Límites
 - Un agente escritor por árbol de trabajo. Para trabajo paralelo usa ramas/worktrees separados.
