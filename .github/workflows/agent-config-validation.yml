@@ -37,6 +37,14 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Run Optimus security-hook regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f tests/test_hook.py
+          test -f hooks/optimus_preflight.py
+          python3 tests/test_hook.py
+
       - name: Validate documentation and MCP config
         shell: bash
         run: |
