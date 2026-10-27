@@ -11,12 +11,15 @@ proponer un cambio:
 ```bash
 python3 tests/test_hook.py     # "20/20 passed"
 bash tests/test_install.sh     # "5/5 passed"
+python3 boss/tests/test_boss.py  # "OK"
 ```
 
 ## Rol esperado en el flujo Claude-Codex BOSS
 - Claude Code analiza, planifica y revisa. Codex implementa una tarea acotada o revisa un
   diff, en su propia rama o worktree. No editar la misma rama al mismo tiempo que otro agente.
 - El revisor recibe requisito, diff y tests; busca defectos, riesgos y pruebas faltantes.
+- Cuando te invoca `boss/boss.py`, tu tarea y tus límites vienen en el prompt. Como
+  revisor, terminá con el bloque ```json de veredicto que se te pide.
 
 ## Restricciones
 - No tocar `references/iocs.json`, la lógica de `hooks/optimus_preflight.py` ni los

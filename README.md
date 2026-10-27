@@ -168,6 +168,13 @@ El **hook de tiempo real** es un script de Python local (`hooks/optimus_prefligh
 
 Todo el análisis pasa local + búsquedas web públicas (para el escaneo estático). Tu código y tus credenciales nunca salen de tu máquina.
 
+## Orquestador Claude-Codex BOSS (experimental)
+
+La carpeta [`boss/`](./boss/README.md) incluye un orquestador mínimo de dos agentes de código.
+Un agente implementa una tarea acotada en un worktree aislado, otro la revisa en solo lectura
+y los tests del contrato deciden. Es independiente del hook: no hace falta para usar Optimus
+y nunca hace merge ni push por su cuenta.
+
 ## Benchmarks (del proyecto original)
 
 ### Hook de tiempo real (20 casos de regresión en `tests/test_hook.py`)

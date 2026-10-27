@@ -1,0 +1,23 @@
+{
+  "id": "T-001",
+  "objetivo": "Agregar al hook un test de regresión que confirme que leer ~/.kube/config con la herramienta Read se bloquea.",
+  "contexto": "El hook está en hooks/optimus_preflight.py y los tests en tests/test_hook.py. Ver CLAUDE.md.",
+  "alcance": ["tests/test_hook.py"],
+  "criterios_aceptacion": [
+    "Existe un caso nuevo en tests/test_hook.py que espera 'deny' para Read de ~/.kube/config",
+    "La suite completa del hook pasa"
+  ],
+  "comandos_validacion": [
+    "python3 tests/test_hook.py",
+    "bash tests/test_install.sh"
+  ],
+  "acciones_prohibidas": [
+    "Modificar hooks/optimus_preflight.py o references/iocs.json",
+    "Debilitar o borrar tests existentes"
+  ],
+  "implementador": "codex",
+  "revisor": "claude",
+  "max_iteraciones": 3,
+  "rama_base": "main",
+  "timeout_segundos": 1800
+}

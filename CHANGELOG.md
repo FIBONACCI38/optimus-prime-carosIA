@@ -20,6 +20,9 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/). Versionado [s
 
 #### Agregado
 
+- `boss/` — orquestador Claude-Codex BOSS: contrato congelado, worktrees aislados,
+  revisión independiente de solo lectura, validación determinista, máx. 3 iteraciones,
+  termina en `AWAITING_APPROVAL` (sin merge). 19 tests con agentes simulados.
 - `tests/test_install.sh` — 5 tests de regresión del instalador/desinstalador.
 - `CLAUDE.md` y `AGENTS.md` — instrucciones de proyecto para Claude Code y Codex.
 - `entrada-boss/` — carpeta de entrada de recursos para el flujo Claude-Codex BOSS.

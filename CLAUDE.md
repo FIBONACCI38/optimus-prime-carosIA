@@ -12,11 +12,13 @@ y un escáner estático descrito en `SKILL.md`. Ver `README.md` para el detalle.
 - `references/iocs.json` — librería de indicadores de compromiso que usa el hook.
 - `tests/test_hook.py` — 20 casos del hook. `tests/test_install.sh` — 5 casos del instalador.
 - `entrada-boss/` — buzón de recursos que deja el responsable. Leer `entrada-boss/README.md`.
+- `boss/` — orquestador Claude-Codex BOSS (`boss/boss.py`). Ver `boss/README.md`.
 
 ## Comandos
 ```bash
 python3 tests/test_hook.py     # debe terminar en "20/20 passed"
 bash tests/test_install.sh     # debe terminar en "5/5 passed"
+python3 boss/tests/test_boss.py  # debe terminar en "OK" (19 tests)
 ```
 No hay build ni dependencias externas.
 

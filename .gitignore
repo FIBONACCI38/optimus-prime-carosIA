@@ -15,3 +15,6 @@ credentials.json
 # Python
 __pycache__/
 *.pyc
+
+# Estado local del orquestador Claude-Codex BOSS (logs, worktrees)
+.boss/
