@@ -1,0 +1,5 @@
+# Project-level MCP configuration.
+# Codex loads project configuration only for trusted projects.
+# This server provides read-only access to official OpenAI developer documentation.
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
