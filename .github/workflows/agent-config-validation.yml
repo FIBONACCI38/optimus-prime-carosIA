@@ -12,6 +12,9 @@ on:
       - "docs/security/agent-security-policy.md"
       - "docs/task-template.md"
       - ".github/workflows/agent-config-validation.yml"
+      - "hooks/**"
+      - "tests/**"
+      - "references/iocs.json"
   pull_request:
     paths:
       - "CLAUDE.md"
@@ -23,6 +26,9 @@ on:
       - "docs/security/agent-security-policy.md"
       - "docs/task-template.md"
       - ".github/workflows/agent-config-validation.yml"
+      - "hooks/**"
+      - "tests/**"
+      - "references/iocs.json"
 
 permissions:
   contents: read
