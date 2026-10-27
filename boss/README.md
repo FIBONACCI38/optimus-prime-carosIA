@@ -53,6 +53,16 @@ python3 boss/boss.py limpiar T-001
 Por cada iteración queda en `.boss/tareas/<id>/iter-N/`: los prompts enviados, el log de
 cada agente, la salida de la validación, el `diff.patch` revisado y el `veredicto.json`.
 
+## Windows nativo
+
+El BOSS funciona en Windows nativo (PowerShell) con Codex instalado por npm: resuelve
+`codex.cmd` / `claude.exe` en el `PATH`. Dos ajustes en el contrato:
+
+- Usá `python` (o `py`) en lugar de `python3` en `comandos_validacion` si `python3` no
+  existe en tu PATH.
+- `bash tests/test_install.sh` necesita Git Bash o WSL; si no los tenés, quitá ese comando
+  del contrato de ejemplo.
+
 ## Contrato
 
 | Campo | Obligatorio | Qué es |
@@ -141,5 +151,5 @@ python3 boss/boss.py estado T-001
 ## Tests
 
 ```bash
-python3 boss/tests/test_boss.py    # 19 tests con agentes simulados, sin llamar a ningún modelo
+python3 boss/tests/test_boss.py    # 20 tests con agentes simulados, sin llamar a ningún modelo
 ```

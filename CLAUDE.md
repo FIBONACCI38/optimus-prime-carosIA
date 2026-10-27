@@ -18,7 +18,7 @@ y un escáner estático descrito en `SKILL.md`. Ver `README.md` para el detalle.
 ```bash
 python3 tests/test_hook.py     # debe terminar en "20/20 passed"
 bash tests/test_install.sh     # debe terminar en "5/5 passed"
-python3 boss/tests/test_boss.py  # debe terminar en "OK" (19 tests)
+python3 boss/tests/test_boss.py  # debe terminar en "OK" (20 tests)
 ```
 No hay build ni dependencias externas.
 

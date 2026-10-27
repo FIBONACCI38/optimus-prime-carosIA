@@ -87,6 +87,12 @@ class BossTest(unittest.TestCase):
         self.assertEqual(boss.fuera_de_alcance(["src/a.py", "README.md"], ["src/"]), ["README.md"])
         self.assertEqual(boss.fuera_de_alcance(["docs/x.md"], ["docs/*.md"]), [])
 
+    def test_resolver_ejecutable(self):
+        r = boss.resolver_ejecutable(["git", "--version"])
+        self.assertTrue(Path(r[0]).is_absolute())
+        self.assertEqual(r[1:], ["--version"])
+        self.assertEqual(boss.resolver_ejecutable(["no-existe-xyz"]), ["no-existe-xyz"])
+
     def test_veredicto(self):
         self.assertIsNone(boss.parsear_veredicto("todo bien"))
         v = boss.parsear_veredicto('x\n```json\n{"decision": "cambios", "hallazgos": [1, {"a": 1}]}\n```')

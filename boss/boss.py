@@ -30,6 +30,7 @@ import hashlib
 import json
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 import time
@@ -77,6 +78,13 @@ def git(repo, *args, check=True):
     if check and res.returncode != 0:
         raise BossError(f"git {' '.join(args)} falló: {res.stderr.strip()}")
     return res.stdout.strip()
+
+
+def resolver_ejecutable(argv):
+    """Resuelve argv[0] en el PATH. En Windows encuentra codex.cmd / claude.exe
+    (PATHEXT), que CreateProcess no busca por sí solo al ejecutar sin shell."""
+    ruta = shutil.which(argv[0])
+    return [ruta] + argv[1:] if ruta else argv
 
 
 def raiz_repo(desde="."):
@@ -275,6 +283,7 @@ def ejecutar_agente(agentes, nombre, rol, worktree, prompt, timeout, log):
     if nombre not in agentes:
         raise BossError(f"agente '{nombre}' no está en la configuración")
     cmd = [x.replace("{worktree}", str(worktree)) for x in agentes[nombre][rol]["cmd"]]
+    cmd = resolver_ejecutable(cmd)
     try:
         res = subprocess.run(cmd, cwd=str(worktree), input=prompt, text=True,
                              capture_output=True, timeout=timeout)
@@ -355,7 +364,7 @@ def validar(c, worktree, timeout, log):
     """Ejecuta los comandos del contrato sin shell. Devuelve (ok, informe)."""
     informe, ok = [], True
     for cmd in c["comandos_validacion"]:
-        argv = shlex.split(cmd)
+        argv = resolver_ejecutable(shlex.split(cmd))
         try:
             res = subprocess.run(argv, cwd=str(worktree), capture_output=True,
                                  text=True, timeout=timeout)
