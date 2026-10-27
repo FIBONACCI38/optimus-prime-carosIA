@@ -83,9 +83,49 @@ shell, en el worktree de la tarea, con el prompt por stdin. Los valores incluido
   `--sandbox read-only -` para revisar.
 
 Los flags se verificaron el 2026-10-27 contra `claude --help` 2.1.311, la documentación
-oficial de Claude Code y el código fuente de `codex exec`. **Codex no se ejecutó en la
-prueba**: corré `codex exec --help` en tu máquina y ajustá `agents.json` si tu versión
-difiere.
+oficial de Claude Code y `codex exec --help` de codex-cli 0.164.0. Codex todavía no se
+ejecutó con una cuenta autenticada: corré `codex exec --help` en tu máquina y ajustá
+`agents.json` si tu versión difiere.
+
+## Instalar Codex CLI
+
+Métodos oficiales del [README de openai/codex](https://github.com/openai/codex), que
+coinciden con la Guía Maestra (sección 3 de la actualización 2.0). En Windows, la Guía
+recomienda instalarlo dentro de WSL (Ubuntu), en la misma terminal donde usás Claude Code.
+
+```bash
+# Opción A — npm (requiere Node.js; sin sudo)
+npm install -g @openai/codex
+
+# Opción B — instalador oficial (Linux/macOS/WSL). Leé el script antes de ejecutarlo.
+curl -fsSL https://chatgpt.com/codex/install.sh -o codex-install.sh
+less codex-install.sh
+sh codex-install.sh
+```
+
+En Windows nativo (PowerShell) el instalador oficial es `install.ps1`, desde la misma URL.
+
+Después:
+
+```bash
+codex --version          # verificar la instalación
+codex login              # "Sign in with ChatGPT" (plan Plus/Pro/Business/Edu/Enterprise)
+codex login status       # debe decir que hay sesión iniciada
+codex exec --help        # comparar los flags con boss/agents.json
+```
+
+Para usarlo con una API key en lugar de tu cuenta de ChatGPT:
+`printenv OPENAI_API_KEY | codex login --with-api-key`. No pegues la clave en chats,
+archivos del repo ni capturas. El acceso con ChatGPT y el acceso por API se facturan por
+separado.
+
+Primera prueba del BOSS con Codex, desde la raíz de este repo:
+
+```bash
+python3 boss/boss.py nueva boss/contrato.ejemplo.json   # Codex implementa, Claude revisa
+python3 boss/boss.py ejecutar T-001
+python3 boss/boss.py estado T-001
+```
 
 ## Garantías y límites
 

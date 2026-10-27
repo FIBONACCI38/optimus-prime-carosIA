@@ -1,5 +1,5 @@
 {
-  "_nota": "Comandos de cada agente. Se ejecutan sin shell, con cwd = worktree de la tarea y el prompt por stdin. '{worktree}' se reemplaza por la ruta. Flags verificados el 2026-10-27: claude 2.1.311 (--help y docs oficiales) y codex-rs/exec en github.com/openai/codex (main). Revisalos con 'claude --help' y 'codex exec --help' si tu versión es otra.",
+  "_nota": "Comandos de cada agente. Se ejecutan sin shell, con cwd = worktree de la tarea y el prompt por stdin. '{worktree}' se reemplaza por la ruta. Flags verificados el 2026-10-27: claude 2.1.311 (--help y docs oficiales) y codex-cli 0.164.0 (codex exec --help). Revisalos con 'claude --help' y 'codex exec --help' si tu versión es otra.",
   "claude": {
     "implementar": {
       "cmd": ["claude", "-p", "Sigue las instrucciones de la tarea que recibes por stdin.",
