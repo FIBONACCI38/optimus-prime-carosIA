@@ -151,5 +151,5 @@ python3 boss/boss.py estado T-001
 ## Tests
 
 ```bash
-python3 boss/tests/test_boss.py    # 20 tests con agentes simulados, sin llamar a ningún modelo
+python3 boss/tests/test_boss.py    # 21 tests con agentes simulados, sin llamar a ningún modelo
 ```

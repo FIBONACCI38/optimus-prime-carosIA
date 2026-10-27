@@ -7,7 +7,11 @@ import sys
 from pathlib import Path
 
 modo = sys.argv[1]
-prompt = sys.stdin.read()
+crudo = sys.stdin.buffer.read()
+try:
+    prompt = crudo.decode("utf-8")  # como Codex: exige UTF-8 estricto
+except UnicodeDecodeError:
+    sys.exit("Failed to read prompt from stdin: input is not valid UTF-8")
 destino = Path("src/feature.txt")
 
 
@@ -17,6 +21,11 @@ def escribir(texto, ruta=destino):
 
 
 if modo == "impl-ok":
+    escribir("ok\n")
+elif modo == "impl-acentos":
+    # El objetivo del contrato trae tildes y eñe; deben llegar intactas.
+    if "Señal con acentuación" not in prompt:
+        sys.exit(5)
     escribir("ok\n")
 elif modo == "impl-corrige":
     # Primera iteración mal; si recibe hallazgos ("CORRIGE"), lo arregla.

@@ -110,6 +110,12 @@ class BossTest(unittest.TestCase):
                               capture_output=True, text=True).stdout
         self.assertEqual(rama.strip(), "ok")
 
+    def test_prompt_utf8_con_acentos(self):
+        # Regresión: en Windows el prompt salía en cp1252 y Codex lo rechazaba.
+        e = self.correr("impl-acentos", "rev-inteligente",
+                        objetivo="Señal con acentuación: crear src/feature.txt con ok")
+        self.assertEqual(e["estado"], "AWAITING_APPROVAL", e.get("motivo"))
+
     def test_corrige_con_hallazgos_del_revisor(self):
         e = self.correr("impl-corrige", "rev-inteligente")
         self.assertEqual(e["estado"], "AWAITING_APPROVAL")

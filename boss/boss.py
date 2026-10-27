@@ -72,9 +72,11 @@ def sha256_texto(texto):
     return hashlib.sha256(texto.encode("utf-8")).hexdigest()
 
 
+# Todo el texto hacia y desde subprocesos va en UTF-8 explícito: en Windows el
+# valor por defecto es la página de códigos local (cp1252) y Codex lo rechaza.
 def git(repo, *args, check=True):
     res = subprocess.run(["git", "-C", str(repo)] + list(args),
-                         capture_output=True, text=True)
+                         capture_output=True, text=True, encoding="utf-8", errors="replace")
     if check and res.returncode != 0:
         raise BossError(f"git {' '.join(args)} falló: {res.stderr.strip()}")
     return res.stdout.strip()
@@ -285,7 +287,7 @@ def ejecutar_agente(agentes, nombre, rol, worktree, prompt, timeout, log):
     cmd = [x.replace("{worktree}", str(worktree)) for x in agentes[nombre][rol]["cmd"]]
     cmd = resolver_ejecutable(cmd)
     try:
-        res = subprocess.run(cmd, cwd=str(worktree), input=prompt, text=True,
+        res = subprocess.run(cmd, cwd=str(worktree), input=prompt, text=True, encoding="utf-8", errors="replace",
                              capture_output=True, timeout=timeout)
         codigo, salida = res.returncode, res.stdout
         err = res.stderr
@@ -367,7 +369,7 @@ def validar(c, worktree, timeout, log):
         argv = resolver_ejecutable(shlex.split(cmd))
         try:
             res = subprocess.run(argv, cwd=str(worktree), capture_output=True,
-                                 text=True, timeout=timeout)
+                                 text=True, encoding="utf-8", errors="replace", timeout=timeout)
             codigo, salida = res.returncode, (res.stdout + res.stderr)
         except FileNotFoundError:
             codigo, salida = 127, f"comando no encontrado: {argv[0]}"
@@ -396,7 +398,7 @@ def confirmar_cambios(tarea, iteracion):
     if not git(tarea.wt_impl, "status", "--porcelain"):
         return False
     git(tarea.wt_impl, "-c", "user.name=Claude-Codex BOSS", "-c", "user.email=boss@localhost",
-        "commit", "-q", "--no-verify", "-m", f"boss({tarea.id}): iteración {iteracion}")
+        "commit", "-q", "--no-verify", "-m", f"boss({tarea.id}): iteracion {iteracion}")
     return True
 
 
