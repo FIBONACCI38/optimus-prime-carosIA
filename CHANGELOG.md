@@ -6,6 +6,28 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/). Versionado [s
 
 ## Optimus Prime CarosIA — Rebrand
 
+### [Sin publicar]
+
+#### Corregido
+
+- **Instalador duplicaba hooks ajenos.** `install_hooks.sh` usaba `select(.hooks[]?.command != $cmd)`,
+  que emite una entrada por cada hook que no coincide: una entrada del usuario con dos hooks se
+  duplicaba en cada instalación (crecimiento exponencial). Ahora quita solo los hooks de Optimus
+  y conserva el resto exactamente una vez.
+- **README: guía de instalación.** URL de `git clone` apuntaba a otra cuenta; `--project` se
+  documentaba "desde la carpeta de la skill", pero el script escribe en `$(pwd)/.claude/settings.json`;
+  se afirmaba que el desinstalador restaura el backup, y no lo hace.
+
+#### Agregado
+
+- `boss/` — orquestador Claude-Codex BOSS: contrato congelado, worktrees aislados,
+  revisión independiente de solo lectura, validación determinista, máx. 3 iteraciones,
+  termina en `AWAITING_APPROVAL` (sin merge). 19 tests con agentes simulados.
+- `tests/test_install.sh` — 5 tests de regresión del instalador/desinstalador.
+- `CLAUDE.md` y `AGENTS.md` — instrucciones de proyecto para Claude Code y Codex.
+- `entrada-boss/` — carpeta de entrada de recursos para el flujo Claude-Codex BOSS.
+- `.gitignore` — evita versionar secretos, estado local y backups.
+
 ### [2.0.0-carosia] — 2026-06-05
 
 Versión rebrandeada y adaptada al español de **MCP Sentinel**, por Francisco Carosia

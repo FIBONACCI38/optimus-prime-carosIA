@@ -74,7 +74,15 @@ jq --arg cmd "$HOOK_COMMAND" '
   .hooks //= {}
   | .hooks.PreToolUse //= []
   | .hooks.PreToolUse |= (
-      map(select(.hooks[]?.command != $cmd))   # remove any stale Optimus entry
+      # Remove any stale Optimus hook (any install path). Entries left empty
+      # by that removal are dropped; every other entry is kept exactly once.
+      map(
+        if any(.hooks[]?; (.command // "") | test("optimus_preflight"))
+        then .hooks |= map(select((.command // "") | test("optimus_preflight") | not))
+             | select(.hooks | length > 0)
+        else .
+        end
+      )
       + [{
           matcher: "",
           hooks: [{type: "command", command: $cmd}]

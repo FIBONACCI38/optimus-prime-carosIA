@@ -1,0 +1,20 @@
+# Secretos y credenciales: nunca versionar (Guía Maestra, Parte XXVI)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+credentials.json
+
+# Estado local de Optimus y backups del instalador
+.security/
+*.optimus.bak.*
+
+# Python
+__pycache__/
+*.pyc
+
+# Estado local del orquestador Claude-Codex BOSS (logs, worktrees)
+.boss/
