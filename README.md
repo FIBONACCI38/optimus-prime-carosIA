@@ -85,7 +85,7 @@ jq --version
 
 ```bash
 # 1. Clonar
-git clone https://github.com/carosiafrancisco-svg/optimus-prime-carosIA.git
+git clone https://github.com/FIBONACCI38/optimus-prime-carosIA.git
 cd optimus-prime-carosIA
 
 # 2. Instalar como skill global
@@ -101,14 +101,17 @@ cp -R . .claude/skills/optimus-prime-carosia/
 
 El hook es lo que te da el bloqueo en vivo. **Sin él, solo tenés el escáner estático.**
 
-Desde adentro de la carpeta `optimus-prime-carosia`:
+**Global (recomendado)** — corre en todos los proyectos. Se puede ejecutar desde cualquier carpeta:
 
 ```bash
-# Global (recomendado) — corre en todos los proyectos
-bash hooks/install_hooks.sh --user
+bash ~/.claude/skills/optimus-prime-carosia/hooks/install_hooks.sh --user
+```
 
-# O solo para este proyecto
-bash hooks/install_hooks.sh --project
+**Solo para un proyecto** — el script escribe en `.claude/settings.json` de la carpeta **desde la que lo ejecutás** (`$(pwd)`), así que corrélo desde la raíz de **tu proyecto**, no desde la carpeta de la skill:
+
+```bash
+cd /ruta/a/tu-proyecto
+bash .claude/skills/optimus-prime-carosia/hooks/install_hooks.sh --project
 ```
 
 El script:
@@ -121,23 +124,28 @@ El script:
 
 ```bash
 # 1. Confirmar que el hook quedó registrado
-cat ~/.claude/settings.json | jq '.hooks.PreToolUse'
+jq '.hooks.PreToolUse' ~/.claude/settings.json      # instalación --user
+jq '.hooks.PreToolUse' .claude/settings.json        # instalación --project (desde la raíz del proyecto)
 
 # 2. Correr los tests
 cd ~/.claude/skills/optimus-prime-carosia
-python3 tests/test_hook.py
+python3 tests/test_hook.py      # hook: tenés que ver "20/20 passed"
+bash tests/test_install.sh      # instalador: tenés que ver "5/5 passed"
 ```
 
-Tenés que ver **20 passed**. Si algo falla, la instalación no quedó limpia.
+Si algo falla, la instalación no quedó limpia.
 
 ### Desinstalar
 
 ```bash
-bash hooks/uninstall_hooks.sh --user      # o --project
+bash ~/.claude/skills/optimus-prime-carosia/hooks/uninstall_hooks.sh --user
+# o, desde la raíz de tu proyecto:
+bash .claude/skills/optimus-prime-carosia/hooks/uninstall_hooks.sh --project
+
 rm -rf ~/.claude/skills/optimus-prime-carosia
 ```
 
-El script de desinstalación restaura tu `settings.json` anterior desde el backup.
+El script de desinstalación **no** restaura el backup: quita solo las entradas del hook de Optimus y deja intactos tus otros hooks. Los backups `settings.json.optimus.bak.<timestamp>` que creó el instalador quedan en la misma carpeta por si querés volver a un estado anterior a mano.
 
 ---
 

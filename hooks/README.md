@@ -12,19 +12,23 @@ Cero tokens de IA en operación normal. Es un script de Python local que corre e
 
 ## Instalar
 
-Desde la raíz del repo (o donde hayas descomprimido la skill):
-
 ```bash
-bash hooks/install_hooks.sh --user     # global para tu usuario
-bash hooks/install_hooks.sh --project  # solo para el proyecto actual
+# Global para tu usuario (se puede correr desde cualquier carpeta)
+bash <carpeta-de-la-skill>/hooks/install_hooks.sh --user
+
+# Solo para un proyecto: correr desde la raíz de ESE proyecto,
+# porque el script escribe en $(pwd)/.claude/settings.json
+bash <carpeta-de-la-skill>/hooks/install_hooks.sh --project
 ```
+
+La instalación es idempotente: correrla varias veces deja una sola entrada de Optimus y no duplica ni borra tus otros hooks (lo verifica `tests/test_install.sh`).
 
 ## Desinstalar
 
 ```bash
-bash hooks/uninstall_hooks.sh --user
-# o
-bash hooks/uninstall_hooks.sh --project
+bash <carpeta-de-la-skill>/hooks/uninstall_hooks.sh --user
+# o, desde la raíz del proyecto
+bash <carpeta-de-la-skill>/hooks/uninstall_hooks.sh --project
 ```
 
 ## Allowlist
