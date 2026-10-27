@@ -1,0 +1,93 @@
+name: Agent configuration validation
+
+on:
+  push:
+    paths:
+      - "CLAUDE.md"
+      - "AGENTS.md"
+      - ".mcp.json"
+      - ".codex/config.toml"
+      - "SECURITY.md"
+      - "docs/agent-operating-model.md"
+      - "docs/security/agent-security-policy.md"
+      - "docs/task-template.md"
+      - ".github/workflows/agent-config-validation.yml"
+  pull_request:
+    paths:
+      - "CLAUDE.md"
+      - "AGENTS.md"
+      - ".mcp.json"
+      - ".codex/config.toml"
+      - "SECURITY.md"
+      - "docs/agent-operating-model.md"
+      - "docs/security/agent-security-policy.md"
+      - "docs/task-template.md"
+      - ".github/workflows/agent-config-validation.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-agent-config:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Validate documentation and MCP config
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import tomllib
+          from pathlib import Path
+          from urllib.parse import urlparse
+
+          required = [
+              "CLAUDE.md",
+              "AGENTS.md",
+              "SECURITY.md",
+              "docs/agent-operating-model.md",
+              "docs/security/agent-security-policy.md",
+              "docs/task-template.md",
+          ]
+          for name in required:
+              path = Path(name)
+              if not path.is_file() or not path.read_text(encoding="utf-8").strip():
+                  raise SystemExit(f"Required file missing or empty: {name}")
+
+          def validate_docs_url(url: str, label: str) -> None:
+              parsed = urlparse(url)
+              if parsed.scheme != "https" or parsed.hostname != "developers.openai.com":
+                  raise SystemExit(f"{label} must use HTTPS and the approved official host")
+              if parsed.username or parsed.password:
+                  raise SystemExit(f"{label} must not embed credentials in the URL")
+
+          mcp = json.loads(Path(".mcp.json").read_text(encoding="utf-8"))
+          servers = mcp.get("mcpServers")
+          if not isinstance(servers, dict) or set(servers) != {"openaiDeveloperDocs"}:
+              raise SystemExit(".mcp.json must contain only the explicitly approved docs server")
+          server = servers["openaiDeveloperDocs"]
+          if server.get("type") != "http":
+              raise SystemExit("Claude Code docs MCP must use type=http")
+          validate_docs_url(server.get("url", ""), "Claude Code MCP URL")
+
+          codex = tomllib.loads(Path(".codex/config.toml").read_text(encoding="utf-8"))
+          codex_servers = codex.get("mcp_servers", {})
+          if set(codex_servers) != {"openaiDeveloperDocs"}:
+              raise SystemExit("Codex config must contain only the explicitly approved docs server")
+          validate_docs_url(
+              codex_servers["openaiDeveloperDocs"].get("url", ""),
+              "Codex MCP URL",
+          )
+
+          print("Agent instructions: OK")
+          print("Security policy and task contract: OK")
+          print("Claude Code MCP JSON: OK")
+          print("Codex MCP TOML: OK")
+          print("MCP allowlist and HTTPS host checks: OK")
+          PY
