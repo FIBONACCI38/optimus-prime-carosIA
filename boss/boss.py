@@ -223,7 +223,7 @@ class Tarea:
 
 def nueva_tarea(repo, ruta_contrato):
     try:
-        contrato = json.loads(Path(ruta_contrato).read_text(encoding="utf-8"))
+        contrato = json.loads(Path(ruta_contrato).read_text(encoding="utf-8-sig"))
     except (OSError, json.JSONDecodeError) as e:
         raise BossError(f"no se pudo leer el contrato: {e}")
     errores = validar_contrato(contrato)
@@ -267,7 +267,7 @@ def nueva_tarea(repo, ruta_contrato):
 
 def cargar_agentes(ruta):
     try:
-        agentes = json.loads(Path(ruta).read_text(encoding="utf-8"))
+        agentes = json.loads(Path(ruta).read_text(encoding="utf-8-sig"))
     except (OSError, json.JSONDecodeError) as e:
         raise BossError(f"no se pudo leer la configuración de agentes {ruta}: {e}")
     for nombre, roles in agentes.items():

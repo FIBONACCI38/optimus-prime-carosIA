@@ -171,6 +171,12 @@ class BossTest(unittest.TestCase):
         ruta_c.write_text(json.dumps(self.contrato(rama_base="no-existe")))
         self.assertEqual(boss.nueva_tarea(self.repo, ruta_c).leer_estado()["estado"], "BLOCKED")
 
+    def test_contrato_con_bom_de_powershell(self):
+        # Set-Content -Encoding UTF8 de PowerShell 5 agrega BOM.
+        ruta_c = self.tmp / "c.json"
+        ruta_c.write_bytes(b"\xef\xbb\xbf" + json.dumps(self.contrato()).encode("utf-8"))
+        self.assertEqual(boss.nueva_tarea(self.repo, ruta_c).leer_estado()["estado"], "TRIAGED")
+
     def test_exige_boss_en_gitignore(self):
         (self.repo / ".gitignore").write_text("")
         ruta_c = self.tmp / "c.json"
